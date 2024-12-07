@@ -25,6 +25,7 @@ jobs:
   build-and-push-to-dockerhub:
     name: Build the image and push to dockerhub
     needs: build-and-test
+    runs-on: ubuntu-latest
     env: 
       IMAGE_NAME: sayamalvi/pizza-app-admin-dashboard
       IMAGE_TAG: build-${{ github.run_number }}
