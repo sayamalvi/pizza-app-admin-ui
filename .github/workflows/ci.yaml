@@ -1,10 +1,10 @@
 name: CI
 on:
   pull_request:
-    branches: 
+    branches:
       - main
-  push: 
-    branches: 
+  push:
+    branches:
       - main
 
 jobs:
@@ -16,34 +16,36 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run eslint
-        run: npm run lint 
+        run: npm run lint
       - name: Tests and Coverage
         run: npm run test
-      - name: Build 
+      - name: Build
         run: npm run build
-  
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   build-and-push-to-dockerhub:
     name: Build the image and push to dockerhub
     needs: build-and-test
     runs-on: ubuntu-latest
-    env: 
+    env:
       IMAGE_NAME: sayamalvi/pizza-app-admin-dashboard
       IMAGE_TAG: build-${{ github.run_number }}
 
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
-    steps: 
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Log in to DockerHub
         uses: docker/login-action@v1
-        with: 
+        with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Build docker image
         run: docker build -t ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} -f docker/prod/Dockerfile .
       - name: Push docker image to dockerhub
         run: docker push ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
- 
-
-    
