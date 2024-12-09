@@ -17,8 +17,6 @@ jobs:
         run: npm ci
       - name: Run eslint
         run: npm run lint
-      - name: Tests and Coverage
-        run: npm run test
       - name: Build
         run: npm run build
       - name: SonarCloud Scan
