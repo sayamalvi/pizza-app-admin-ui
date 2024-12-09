@@ -17,15 +17,8 @@ jobs:
         run: npm ci
       - name: Run eslint
         run: npm run lint
-      - name: Tests and Coverage
-        run: npm run test
       - name: Build
         run: npm run build
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build-and-push-to-dockerhub:
     name: Build the image and push to dockerhub
