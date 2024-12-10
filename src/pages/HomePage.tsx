@@ -54,13 +54,13 @@ const list = [
 
 interface CardTitleProps {
   title: string
-  PrefixIcon: ComponentType<unknown>
+  PrefixIcon: unknown
 }
 
 const CardTitle = ({ title, PrefixIcon }: CardTitleProps) => {
   return (
     <Space>
-      <Icon component={PrefixIcon} />
+      <Icon component={PrefixIcon as ComponentType} />
       {title}
     </Space>
   )
