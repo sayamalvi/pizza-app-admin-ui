@@ -61,7 +61,7 @@ const Dashboard = () => {
             <Layout>
                 <Header className='px-6 bg-white'>
                     <Flex gap='middle' align="start" justify="space-between">
-                        <Badge text="Global" status="success" />
+                        <Badge text={user.role === 'admin' ? 'Admin' : user.tenant?.name} status="success" />
                         <Space size={16}>
                             <Badge dot={true}>
                                 <BellFilled />
@@ -72,7 +72,7 @@ const Dashboard = () => {
                         </Space>
                     </Flex>
                 </Header>
-                <Content className="mx-0 my-[16px]">
+                <Content className="m-5">
                     <Outlet />
                 </Content>
                 <Footer className="text-center">Sayam's Pizza</Footer>
