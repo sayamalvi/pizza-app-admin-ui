@@ -19,12 +19,13 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ConfigProvider theme={{
-        token: {
-          colorPrimary: '#F65F42',
-          colorLink: '#F65F42'
-        }
-      }}>
+      <ConfigProvider
+        theme={{
+          token: {
+            colorPrimary: '#F65F42',
+            colorLink: '#F65F42'
+          }
+        }}>
         <RouterProvider router={router} />
       </ConfigProvider>
     </QueryClientProvider>
