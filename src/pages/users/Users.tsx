@@ -1,13 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Breadcrumb, Button, Drawer, Form, Space, Table, theme } from "antd"
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { Breadcrumb, Button, Drawer, Form, Space, Spin, Table, theme, Flex, Typography } from "antd"
 import { Link, Navigate } from "react-router-dom"
 import { createUser, getUsers } from "../../http/api"
 import { CreateUserData, User } from "../../types"
 import { useAuthStore } from "../../store"
 import UserFilter from "./UserFilter"
 import { useState } from "react"
-import { PlusOutlined } from "@ant-design/icons"
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons"
 import UserForm from "./forms/UserForm"
+import { PER_PAGE } from "../../constants"
 
 const columns = [
     {
@@ -39,12 +40,20 @@ const Users = () => {
     const { token: { colorBgLayout } } = theme.useToken()
     const [drawerOpen, setDrawerOpen] = useState(false)
     const { user } = useAuthStore()
-    const { data: users, isLoading, isError, error } = useQuery({
-        queryKey: ['users'],
+
+    const [queryParams, setQueryParams] = useState({
+        perPage: PER_PAGE,
+        currentPage: 1
+    })
+
+    const { data: users, isFetching, isError, error } = useQuery({
+        queryKey: ['users', queryParams],
         queryFn: () => {
-            return getUsers().then((res) => res.data)
+            const queryString = new URLSearchParams(queryParams as unknown as Record<string, string>).toString()
+            return getUsers(queryString).then((res) => res.data)
         },
-        enabled: user?.role === 'admin'
+        enabled: user?.role === 'admin',
+        placeholderData: keepPreviousData
     })
 
     const { mutate: createUserMutation } = useMutation({
@@ -70,16 +79,34 @@ const Users = () => {
 
     return (
         <>
-            <Breadcrumb className="my-4" items={[
-                { title: <Link to='/'>Dashboard</Link> }, { title: 'Users' }
-            ]} />
-            {isLoading && <div>Loading...</div>}
-            {isError && <div>{error.message}</div>}
+            <Flex className="my-4" justify="space-between">
+                <Breadcrumb items={[
+                    { title: <Link to='/'>Dashboard</Link> }, { title: 'Users' }
+                ]} />
+                {isFetching && <Spin indicator={<LoadingOutlined />} className="text-xl" spinning={true} />}
+                {isError && <Typography.Text type="danger">{error.message}</Typography.Text>}
+
+            </Flex>
 
             <UserFilter onFilterChange={(filterName: string, filterValue: string) => { console.log(filterName, filterValue) }}>
                 <Button icon={<PlusOutlined />} type="primary" onClick={() => setDrawerOpen(true)}>Add User</Button>
             </UserFilter>
-            <Table columns={columns} dataSource={users} rowKey={'id'} />
+
+            <Table
+                columns={columns}
+                dataSource={users?.data}
+                rowKey={'id'}
+                pagination={{
+                    total: users?.total,
+                    current: queryParams.currentPage,
+                    pageSize: queryParams.perPage,
+                    onChange: (page) => {
+                        setQueryParams((prev) => {
+                            return { ...prev, currentPage: page }
+                        })
+                    }
+                }}
+            />
 
             <Drawer
                 className={`bg-[${colorBgLayout}]`}
