@@ -4,6 +4,7 @@ import { Link, Navigate } from "react-router-dom"
 import { getUsers } from "../../http/api"
 import { User } from "../../types"
 import { useAuthStore } from "../../store"
+import UserFilter from "./UserFilter"
 
 const columns = [
     {
@@ -45,12 +46,13 @@ const Users = () => {
 
     return (
         <>
-            <Breadcrumb items={[
+            <Breadcrumb className="my-4" items={[
                 { title: <Link to='/'>Dashboard</Link> }, { title: 'Users' }
             ]} />
             {isLoading && <div>Loading...</div>}
             {isError && <div>{error.message}</div>}
-            <Table className="my-4" columns={columns} dataSource={users} />
+            <UserFilter onFilterChange={(filterName: string, filterValue: string) => { console.log(filterName, filterValue) }} />
+            <Table columns={columns} dataSource={users} rowKey={'id'} />
         </>
     )
 }
