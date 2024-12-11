@@ -1,10 +1,13 @@
 import { useQuery } from "@tanstack/react-query"
-import { Breadcrumb, Table } from "antd"
+import { Breadcrumb, Button, Drawer, Form, Space, Table, theme } from "antd"
 import { Link, Navigate } from "react-router-dom"
 import { getUsers } from "../../http/api"
 import { User } from "../../types"
 import { useAuthStore } from "../../store"
 import UserFilter from "./UserFilter"
+import { useState } from "react"
+import { PlusOutlined } from "@ant-design/icons"
+import UserForm from "./forms/UserForm"
 
 const columns = [
     {
@@ -31,6 +34,8 @@ const columns = [
 ]
 
 const Users = () => {
+    const { token: { colorBgLayout } } = theme.useToken()
+    const [drawerOpen, setDrawerOpen] = useState(false)
     const { user } = useAuthStore()
     const { data: users, isLoading, isError, error } = useQuery({
         queryKey: ['users'],
@@ -51,8 +56,31 @@ const Users = () => {
             ]} />
             {isLoading && <div>Loading...</div>}
             {isError && <div>{error.message}</div>}
-            <UserFilter onFilterChange={(filterName: string, filterValue: string) => { console.log(filterName, filterValue) }} />
+
+            <UserFilter onFilterChange={(filterName: string, filterValue: string) => { console.log(filterName, filterValue) }}>
+                <Button icon={<PlusOutlined />} type="primary" onClick={() => setDrawerOpen(true)}>Add User</Button>
+            </UserFilter>
             <Table columns={columns} dataSource={users} rowKey={'id'} />
+
+            <Drawer
+                className={`bg-[${colorBgLayout}]`}
+                open={drawerOpen}
+                title="Create User"
+                width={400}
+                destroyOnClose={true}
+                onClose={() => { setDrawerOpen(false) }}
+                extra={
+                    <Space>
+                        <Button>Cancel</Button>
+                        <Button type="primary">Submit</Button>
+                    </Space>
+                }
+            >
+                <Form layout="vertical">
+                    <UserForm />
+                </Form>
+            </Drawer >
+
         </>
     )
 }
