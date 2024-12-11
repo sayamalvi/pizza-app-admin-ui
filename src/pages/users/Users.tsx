@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { Breadcrumb, Table } from "antd"
-import { Link } from "react-router-dom"
+import { Link, Navigate } from "react-router-dom"
 import { getUsers } from "../../http/api"
 import { User } from "../../types"
+import { useAuthStore } from "../../store"
 
 const columns = [
     {
@@ -29,12 +30,19 @@ const columns = [
 ]
 
 const Users = () => {
+    const { user } = useAuthStore()
     const { data: users, isLoading, isError, error } = useQuery({
         queryKey: ['users'],
         queryFn: () => {
             return getUsers().then((res) => res.data)
-        }
+        },
+        enabled: user?.role === 'admin'
     })
+
+    if (user?.role !== 'admin') {
+        return <Navigate to='/' replace={true} />
+    }
+
     return (
         <>
             <Breadcrumb items={[

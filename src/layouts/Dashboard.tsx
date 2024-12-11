@@ -5,35 +5,46 @@ import { HomeOutlined, UserOutlined, ShopOutlined, BellFilled } from '@ant-desig
 import { useState } from "react"
 import Logo from "../components/icons/Logo"
 import { useLogout } from "../hooks/useLogout"
+
 const { Sider, Content, Header, Footer } = Layout
 
-const items = [
-    {
-        key: '/',
-        icon: <HomeOutlined />,
-        label: <NavLink to='/'>Home</NavLink>
-    },
-    {
-        key: '/users',
-        icon: <UserOutlined />,
-        label: <NavLink to='/users'>Users</NavLink>
-    },
-    {
-        key: '/tenants',
-        icon: <ShopOutlined />,
-        label: <NavLink to='/tenants'>Tenants</NavLink>
-    },
-    {
-        key: '/products',
-        icon: <UserOutlined />,
-        label: <NavLink to='/products'>Products</NavLink>
-    },
-    {
-        key: '/promos',
-        icon: <UserOutlined />,
-        label: <NavLink to='/promos'>Promos</NavLink>
-    },
-]
+const getMenuItems = (role: string) => {
+    const baseItems = [
+        {
+            key: '/',
+            icon: <HomeOutlined />,
+            label: <NavLink to='/'>Home</NavLink>
+        },
+        {
+            key: '/tenants',
+            icon: <ShopOutlined />,
+            label: <NavLink to='/tenants'>Tenants</NavLink>
+        },
+        {
+            key: '/products',
+            icon: <UserOutlined />,
+            label: <NavLink to='/products'>Products</NavLink>
+        },
+        {
+            key: '/promos',
+            icon: <UserOutlined />,
+            label: <NavLink to='/promos'>Promos</NavLink>
+        },
+    ]
+    if (role === 'admin') {
+        const menus = [
+            ...baseItems,
+        ]
+        menus.splice(1, 0, {
+            key: '/users',
+            icon: <UserOutlined />,
+            label: <NavLink to='/users'>Users</NavLink>
+        },)
+        return menus
+    }
+    return baseItems
+}
+
 
 const Dashboard = () => {
     const [collapsed, setCollapsed] = useState(false)
@@ -44,6 +55,7 @@ const Dashboard = () => {
         return <Navigate to='/auth/login' replace={true} />
     }
 
+    const items = getMenuItems(user.role)
 
     return (
         <Layout className="min-h-[100vh]">
