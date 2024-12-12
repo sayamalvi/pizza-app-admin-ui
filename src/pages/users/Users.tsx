@@ -1,8 +1,8 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Breadcrumb, Button, Drawer, Form, Space, Spin, Table, theme, Flex, Typography } from "antd"
 import { Link, Navigate } from "react-router-dom"
-import { createUser, getUsers } from "../../http/api"
-import { CreateUserData, FieldData, User } from "../../types"
+import { createUser, getUsers, updateUser } from "../../http/api"
+import { CreateUserData, FieldData, UpdateUserData, User } from "../../types"
 import { useAuthStore } from "../../store"
 import UserFilter from "./UserFilter"
 import { useMemo, useState } from "react"
@@ -57,6 +57,8 @@ const Users = () => {
         currentPage: 1
     })
 
+    const [userToEdit, setUserToEdit] = useState<User | null>(null)
+
     const { data: users, isFetching, isError, error } = useQuery({
         queryKey: ['users', queryParams],
         queryFn: () => {
@@ -80,9 +82,27 @@ const Users = () => {
         }
     })
 
+    const { mutate: updateUserMutation } = useMutation({
+        mutationKey: ['updateUser'],
+        mutationFn: async (data: UpdateUserData) => {
+            return updateUser(userToEdit!.id, data).then((res) => res.data)
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['users'] })
+            setDrawerOpen(false)
+            form.resetFields()
+        }
+    })
+
     const onHandleSubmit = async () => {
         await form.validateFields()
-        createUserMutation(form.getFieldsValue())
+        if (userToEdit) {
+            await updateUserMutation(form.getFieldsValue())
+        }
+        else await createUserMutation(form.getFieldsValue())
+        form.resetFields()
+        setUserToEdit(null)
+        setDrawerOpen(false)
     }
 
     const debouncedSeachUpdate = useMemo(() => {
@@ -123,7 +143,26 @@ const Users = () => {
             </Form>
 
             <Table
-                columns={columns}
+                columns={[
+                    ...columns,
+                    {
+                        title: 'Actions',
+                        render: (_text: string, record: User) => {
+                            return (
+                                <Space>
+                                    <Button type="link" onClick={() => {
+                                        setUserToEdit(record)
+                                        form.setFieldsValue({ ...record, tenantId: record.tenant?.id })
+                                        setDrawerOpen(true)
+                                    }}>
+                                        Edit
+                                    </Button>
+                                    <Button type="link">Delete</Button>
+                                </Space>
+                            )
+                        }
+                    }
+                ]}
                 dataSource={users?.data}
                 rowKey={'id'}
                 pagination={{
@@ -142,22 +181,32 @@ const Users = () => {
             <Drawer
                 className={`bg-[${colorBgLayout}]`}
                 open={drawerOpen}
-                title="Create User"
+                title={userToEdit ? 'Edit User' : 'Add User'}
                 width={400}
                 destroyOnClose={true}
-                onClose={() => { setDrawerOpen(false) }}
+                onClose={() => {
+                    setDrawerOpen(false)
+                    form.resetFields()
+                    setUserToEdit(null)
+                }}
                 extra={
                     <Space>
                         <Button onClick={() => {
                             setDrawerOpen(false);
                             form.resetFields()
-                        }}>Cancel</Button>
-                        <Button type="primary" onClick={onHandleSubmit}>Submit</Button>
+                        }}>
+                            Cancel
+                        </Button>
+                        <Button
+                            type="primary"
+                            onClick={onHandleSubmit}>
+                            Submit
+                        </Button>
                     </Space>
                 }
             >
                 <Form layout="vertical" form={form}>
-                    <UserForm />
+                    <UserForm isEditMode={!!userToEdit} />
                 </Form>
             </Drawer >
 

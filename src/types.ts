@@ -21,6 +21,14 @@ export type CreateUserData = {
   tenantId: number;
 };
 
+export type UpdateUserData = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  tenantId: number;
+};
+
 export type Tenant = {
   id: number;
   name: string;

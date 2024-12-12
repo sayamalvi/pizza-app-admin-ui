@@ -3,7 +3,7 @@ import { Card, Col, Form, Input, Row, Select, Space } from "antd"
 import { getTenants } from "../../../http/api"
 import { Tenant } from "../../../types"
 
-const UserForm = () => {
+const UserForm = ({ isEditMode = false }: { isEditMode: boolean }) => {
     const { data: tenants } = useQuery({
         queryKey: ['tenants'],
         queryFn: () => {
@@ -53,21 +53,22 @@ const UserForm = () => {
                         </Row>
                     </Card>
 
-                    <Card title="Security Info" bordered={false}>
-                        <Row gutter={20}>
-                            <Col span={12}>
-                                <Form.Item rules={[
-                                    {
-                                        required: true,
-                                        message: 'Password is required'
-                                    }
-                                ]} label="Password" name="password">
-                                    <Input.Password type="password" size="large" placeholder="Password" />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                    </Card>
-
+                    {!isEditMode && (
+                        <Card title="Security Info" bordered={false}>
+                            <Row gutter={20}>
+                                <Col span={12}>
+                                    <Form.Item rules={[
+                                        {
+                                            required: true,
+                                            message: 'Password is required'
+                                        }
+                                    ]} label="Password" name="password">
+                                        <Input.Password type="password" size="large" placeholder="Password" />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        </Card>
+                    )}
                     <Card title="Roles" bordered={false}>
                         <Row gutter={20}>
                             <Col span={12}>
@@ -77,7 +78,7 @@ const UserForm = () => {
                                         message: 'Role is required'
                                     }
                                 ]} label="Role" name="role">
-                                    <Select size="large" placeholder="Select Role" allowClear={true} >
+                                    <Select id="roleInUserForm" size="large" placeholder="Select Role" allowClear={true} >
                                         <Select.Option value="admin">Admin</Select.Option>
                                         <Select.Option value="manager">Manager</Select.Option>
                                         <Select.Option value="customer">Customer</Select.Option>
