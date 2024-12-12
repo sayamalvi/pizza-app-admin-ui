@@ -5,10 +5,11 @@ import { createUser, getUsers } from "../../http/api"
 import { CreateUserData, FieldData, User } from "../../types"
 import { useAuthStore } from "../../store"
 import UserFilter from "./UserFilter"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons"
 import UserForm from "./forms/UserForm"
 import { PER_PAGE } from "../../constants"
+import { debounce } from "lodash"
 
 const columns = [
     {
@@ -77,9 +78,20 @@ const Users = () => {
         createUserMutation(form.getFieldsValue())
     }
 
+    const debouncedSeachUpdate = useMemo(() => {
+        return debounce((value: string) => {
+            setQueryParams((prev) => ({ ...prev, searchTerm: value }))
+        }, 1000)
+    }, [])
+
     const onFilterChange = (changedFields: FieldData[]) => {
         const changedFilterFields = changedFields.map((item) => ({ [item.name]: item.value })).reduce((acc, item) => ({ ...acc, ...item }), {})
-        setQueryParams((prev) => ({ ...prev, ...changedFilterFields }))
+        if (changedFilterFields.searchTerm) {
+            debouncedSeachUpdate(changedFilterFields.searchTerm)
+        }
+        else {
+            setQueryParams((prev) => ({ ...prev, ...changedFilterFields }))
+        }
     }
 
     if (user?.role !== 'admin') {
