@@ -2,7 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { Breadcrumb, Button, Drawer, Form, Space, Spin, Table, theme, Flex, Typography } from "antd"
 import { Link, Navigate } from "react-router-dom"
 import { createUser, getUsers } from "../../http/api"
-import { CreateUserData, User } from "../../types"
+import { CreateUserData, FieldData, User } from "../../types"
 import { useAuthStore } from "../../store"
 import UserFilter from "./UserFilter"
 import { useState } from "react"
@@ -36,7 +36,10 @@ const columns = [
 
 const Users = () => {
     const queryClient = useQueryClient()
+
     const [form] = Form.useForm()
+    const [filterForm] = Form.useForm()
+
     const { token: { colorBgLayout } } = theme.useToken()
     const [drawerOpen, setDrawerOpen] = useState(false)
     const { user } = useAuthStore()
@@ -49,7 +52,8 @@ const Users = () => {
     const { data: users, isFetching, isError, error } = useQuery({
         queryKey: ['users', queryParams],
         queryFn: () => {
-            const queryString = new URLSearchParams(queryParams as unknown as Record<string, string>).toString()
+            const filteredParams = Object.fromEntries(Object.entries(queryParams).filter(item => !!item[1]))
+            const queryString = new URLSearchParams(filteredParams as unknown as Record<string, string>).toString()
             return getUsers(queryString).then((res) => res.data)
         },
         enabled: user?.role === 'admin',
@@ -73,6 +77,11 @@ const Users = () => {
         createUserMutation(form.getFieldsValue())
     }
 
+    const onFilterChange = (changedFields: FieldData[]) => {
+        const changedFilterFields = changedFields.map((item) => ({ [item.name]: item.value })).reduce((acc, item) => ({ ...acc, ...item }), {})
+        setQueryParams((prev) => ({ ...prev, ...changedFilterFields }))
+    }
+
     if (user?.role !== 'admin') {
         return <Navigate to='/' replace={true} />
     }
@@ -88,9 +97,11 @@ const Users = () => {
 
             </Flex>
 
-            <UserFilter onFilterChange={(filterName: string, filterValue: string) => { console.log(filterName, filterValue) }}>
-                <Button icon={<PlusOutlined />} type="primary" onClick={() => setDrawerOpen(true)}>Add User</Button>
-            </UserFilter>
+            <Form form={filterForm} onFieldsChange={onFilterChange}>
+                <UserFilter>
+                    <Button icon={<PlusOutlined />} type="primary" onClick={() => setDrawerOpen(true)}>Add User</Button>
+                </UserFilter>
+            </Form>
 
             <Table
                 columns={columns}
