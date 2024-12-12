@@ -87,8 +87,8 @@ const Users = () => {
 
     const debouncedSeachUpdate = useMemo(() => {
         return debounce((value: string) => {
-            setQueryParams((prev) => ({ ...prev, searchTerm: value }))
-        }, 1000)
+            setQueryParams((prev) => ({ ...prev, searchTerm: value, currentPage: 1 }))
+        }, 500)
     }, [])
 
     const onFilterChange = (changedFields: FieldData[]) => {
@@ -97,7 +97,7 @@ const Users = () => {
             debouncedSeachUpdate(changedFilterFields.searchTerm)
         }
         else {
-            setQueryParams((prev) => ({ ...prev, ...changedFilterFields }))
+            setQueryParams((prev) => ({ ...prev, ...changedFilterFields, currentPage: 1 }))
         }
     }
 
@@ -134,7 +134,8 @@ const Users = () => {
                         setQueryParams((prev) => {
                             return { ...prev, currentPage: page }
                         })
-                    }
+                    },
+                    showTotal: (total: number, range: number[]) => { return `Showing ${range[0]}-${range[1]} of ${total} items` }
                 }}
             />
 
