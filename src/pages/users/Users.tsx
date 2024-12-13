@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Breadcrumb, Button, Drawer, Form, Space, Spin, Table, theme, Flex, Typography } from "antd"
 import { Link, Navigate } from "react-router-dom"
-import { createUser, getUsers, updateUser } from "../../http/api"
+import { createUser, deleteUser, getUsers, updateUser } from "../../http/api"
 import { CreateUserData, FieldData, UpdateUserData, User } from "../../types"
 import { useAuthStore } from "../../store"
 import UserFilter from "./UserFilter"
@@ -94,6 +94,16 @@ const Users = () => {
         }
     })
 
+    const { mutate: deleteUserMutation } = useMutation({
+        mutationKey: ['deleteUser'],
+        mutationFn: async (id: string) => {
+            return deleteUser(id).then((res) => res.data)
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['users'] })
+        }
+    })
+
     const onHandleSubmit = async () => {
         await form.validateFields()
         if (userToEdit) {
@@ -157,7 +167,9 @@ const Users = () => {
                                     }}>
                                         Edit
                                     </Button>
-                                    <Button type="link">Delete</Button>
+                                    <Button type="link" onClick={() => {
+                                        deleteUserMutation(record.id)
+                                    }}>Delete</Button>
                                 </Space>
                             )
                         }

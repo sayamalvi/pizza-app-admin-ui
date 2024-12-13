@@ -28,3 +28,7 @@ export const createUser = (user: CreateUserData) => {
 export const updateUser = (id: string, user: UpdateUserData) => {
   return api.patch(`/users/${id}`, user);
 };
+
+export const deleteUser = (id: string) => {
+  return api.delete(`/users/${id}`);
+};
