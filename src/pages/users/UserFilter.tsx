@@ -1,31 +1,34 @@
-import { Card, Col, Input, Row, Select } from "antd"
+import { Card, Col, Form, Input, Row, Select } from "antd"
 
 type UsersFilterProps = {
-    onFilterChange: (filterName: string, filterValue: string) => void
     children?: React.ReactNode
 }
-const UserFilter = ({ onFilterChange, children }: UsersFilterProps) => {
+const UserFilter = ({ children }: UsersFilterProps) => {
     return (
         <Card className="my-4">
             <Row justify="space-between">
                 <Col>
                     <Row className="gap-3">
                         <Col>
-                            <Input.Search allowClear={true} placeholder="Search" onChange={(e) => onFilterChange('searchFilter', e.target.value)} />
+                            <Form.Item name="searchTerm">
+                                <Input.Search allowClear={true} placeholder="Search" />
+                            </Form.Item>
                         </Col>
                         <Col>
-                            <Select placeholder="Select Role" allowClear={true} onChange={(selectedItem) => onFilterChange('roleFilter', selectedItem)}>
-                                <Select.Option value="admin">Admin</Select.Option>
-                                <Select.Option value="manager">Manager</Select.Option>
-                                <Select.Option value="customer">Customer</Select.Option>
-                            </Select>
+                            <Form.Item name="role">
+                                <Select placeholder="Select Role" allowClear={true}>
+                                    <Select.Option value="admin">Admin</Select.Option>
+                                    <Select.Option value="manager">Manager</Select.Option>
+                                    <Select.Option value="customer">Customer</Select.Option>
+                                </Select>
+                            </Form.Item>
                         </Col>
-                        <Col>
+                        {/* <Col>
                             <Select placeholder="Status" allowClear={true} onChange={(selectedItem) => onFilterChange('statusFilter', selectedItem)}>
                                 <Select.Option value="ban">Ban</Select.Option>
                                 <Select.Option value="active">Active</Select.Option>
                             </Select>
-                        </Col>
+                        </Col> */}
                     </Row>
                 </Col>
                 <Col>

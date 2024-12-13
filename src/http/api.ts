@@ -1,4 +1,4 @@
-import { CreateUserData, Credentials } from "../types";
+import { CreateUserData, Credentials, UpdateUserData } from "../types";
 import { api } from "./client";
 
 export const login = (credentials: Credentials) => {
@@ -23,4 +23,12 @@ export const getTenants = () => {
 
 export const createUser = (user: CreateUserData) => {
   return api.post("/users", user);
+};
+
+export const updateUser = (id: string, user: UpdateUserData) => {
+  return api.patch(`/users/${id}`, user);
+};
+
+export const deleteUser = (id: string) => {
+  return api.delete(`/users/${id}`);
 };

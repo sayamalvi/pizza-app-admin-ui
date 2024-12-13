@@ -1,4 +1,4 @@
-import { Navigate, NavLink, Outlet } from "react-router-dom"
+import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom"
 import { useAuthStore } from "../store"
 import { Avatar, Badge, Dropdown, Flex, Layout, Menu, Space } from "antd"
 import { HomeOutlined, UserOutlined, ShopOutlined, BellFilled } from '@ant-design/icons'
@@ -14,11 +14,6 @@ const getMenuItems = (role: string) => {
             key: '/',
             icon: <HomeOutlined />,
             label: <NavLink to='/'>Home</NavLink>
-        },
-        {
-            key: '/tenants',
-            icon: <ShopOutlined />,
-            label: <NavLink to='/tenants'>Tenants</NavLink>
         },
         {
             key: '/products',
@@ -39,7 +34,12 @@ const getMenuItems = (role: string) => {
             key: '/users',
             icon: <UserOutlined />,
             label: <NavLink to='/users'>Users</NavLink>
-        },)
+        })
+        menus.splice(2, 0, {
+            key: '/restaurants',
+            icon: <ShopOutlined />,
+            label: <NavLink to='/tenants'>Restaurants</NavLink>
+        })
         return menus
     }
     return baseItems
@@ -47,12 +47,13 @@ const getMenuItems = (role: string) => {
 
 
 const Dashboard = () => {
+    const location = useLocation()
     const [collapsed, setCollapsed] = useState(false)
     const { user } = useAuthStore()
     const { logoutMutation } = useLogout()
 
     if (!user) {
-        return <Navigate to='/auth/login' replace={true} />
+        return <Navigate to={`/auth/login?returnTo=${location.pathname}`} replace={true} />
     }
 
     const items = getMenuItems(user.role)
@@ -68,7 +69,7 @@ const Dashboard = () => {
                 <div className="px-6 py-6">
                     <Logo />
                 </div>
-                <Menu items={items} theme="light" defaultSelectedKeys={['/']} mode="inline" />
+                <Menu items={items} theme="light" defaultSelectedKeys={[location.pathname]} mode="inline" />
             </Sider>
             <Layout>
                 <Header className='px-6 bg-white'>
