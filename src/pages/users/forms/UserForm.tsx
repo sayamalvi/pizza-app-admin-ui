@@ -10,6 +10,7 @@ const UserForm = ({ isEditMode = false }: { isEditMode: boolean }) => {
             return getTenants().then((res) => res.data)
         }
     })
+    const selectedRole = Form.useWatch('role')
     return (
         <Row>
             <Col span={24}>
@@ -81,25 +82,25 @@ const UserForm = ({ isEditMode = false }: { isEditMode: boolean }) => {
                                     <Select id="roleInUserForm" size="large" placeholder="Select Role" allowClear={true} >
                                         <Select.Option value="admin">Admin</Select.Option>
                                         <Select.Option value="manager">Manager</Select.Option>
-                                        <Select.Option value="customer">Customer</Select.Option>
                                     </Select>
                                 </Form.Item>
                             </Col>
-                            <Col span={12}>
-                                <Form.Item rules={[
-                                    {
-                                        required: true,
-                                        message: 'Restaurant is required'
-                                    }
-                                ]} label="Restaurant" name="tenantId">
-                                    <Select size="large" placeholder="Select Restaurant" allowClear={true} >
-                                        {tenants?.map((tenant: Tenant) => (
-                                            <Select.Option key={tenant.id} value={tenant.id}>{tenant.name}</Select.Option>
-                                        ))}
-                                    </Select>
-                                </Form.Item>
-                            </Col>
-
+                            {selectedRole === 'manager' && (
+                                <Col span={12}>
+                                    <Form.Item rules={[
+                                        {
+                                            required: true,
+                                            message: 'Restaurant is required'
+                                        }
+                                    ]} label="Restaurant" name="tenantId">
+                                        <Select size="large" placeholder="Select Restaurant" allowClear={true} >
+                                            {tenants?.map((tenant: Tenant) => (
+                                                <Select.Option key={tenant.id} value={tenant.id}>{tenant.name}</Select.Option>
+                                            ))}
+                                        </Select>
+                                    </Form.Item>
+                                </Col>
+                            )}
                         </Row>
                     </Card>
 
