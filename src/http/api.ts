@@ -2,7 +2,7 @@ import { CreateUserData, Credentials, UpdateUserData } from "../types";
 import { api } from "./client";
 
 export const AUTH_SERVICE = "/api/auth";
-export const CATALOG_SERVICE = '/api/catalog';
+export const CATALOG_SERVICE = "/api/catalog";
 
 export const login = (credentials: Credentials) => {
   return api.post(`${AUTH_SERVICE}/auth/login`, credentials);
@@ -36,4 +36,6 @@ export const deleteUser = (id: string) => {
   return api.delete(`${AUTH_SERVICE}/users/${id}`);
 };
 
-
+export const getCategories = () => {
+  return api.get(`${CATALOG_SERVICE}/categories`);
+};
