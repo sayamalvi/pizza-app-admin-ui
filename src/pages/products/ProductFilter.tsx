@@ -32,7 +32,7 @@ const ProductFilter = ({ children }: ProductFilterProps) => {
                                 </Form.Item>
                             </Col>
                             <Col>
-                                <Form.Item name="category">
+                                <Form.Item name="categoryId">
                                     <Select placeholder="Select category" allowClear={true}>
                                         {categories?.data.map((category: Category) => (
                                             <Select.Option key={category._id} value={category._id}>{category.name}</Select.Option>
@@ -41,8 +41,8 @@ const ProductFilter = ({ children }: ProductFilterProps) => {
                                 </Form.Item>
                             </Col>
                             <Col>
-                                <Form.Item name="restaurant">
-                                    <Select placeholder="Select category" allowClear={true}>
+                                <Form.Item name="tenantId">
+                                    <Select placeholder="Select Restaurant" allowClear={true}>
                                         {restaurants?.data.map((restaurant: Tenant) => (
                                             <Select.Option key={restaurant.id} value={restaurant.id}>{restaurant.name}</Select.Option>
                                         ))}
@@ -51,7 +51,9 @@ const ProductFilter = ({ children }: ProductFilterProps) => {
                             </Col>
                             <Col>
                                 <Space>
-                                    <Switch title="Show only published" defaultChecked onChange={() => { }} />
+                                    <Form.Item name="isPublished">
+                                        <Switch title="Show only published" defaultChecked={false} />
+                                    </Form.Item>
                                     <Typography.Text>Show only published</Typography.Text>
                                 </Space>
                             </Col>

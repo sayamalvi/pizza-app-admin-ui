@@ -2,14 +2,14 @@ import { Breadcrumb, Button, Flex, Form, Image, Space, Table, Tag, Typography } 
 import { PlusOutlined } from "@ant-design/icons"
 import { Link } from "react-router-dom"
 import ProductFilter from "./ProductFilter"
-import { GetProductResponse, Product } from "../../types"
+import { FieldData, GetProductResponse, Product } from "../../types"
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { PER_PAGE } from "../../constants"
 import { getProducts } from "../../http/api"
 import { AxiosResponse } from "axios"
-import { render } from "@testing-library/react"
 import { format } from "date-fns"
+import { debounce } from "lodash"
 
 const columns = [
     {
@@ -32,7 +32,7 @@ const columns = [
         title: 'Status',
         dataIndex: 'isPublished',
         key: 'isPublished',
-        render: (text: string, record: Product) => {
+        render: (_text: string, record: Product) => {
             return <Space>
                 <Typography.Text>{record.isPublished ? <Tag color="green">Published</Tag> : <Tag color="red">Draft</Tag>}</Typography.Text>
             </Space>
@@ -67,6 +67,22 @@ const Products = () => {
         },
         placeholderData: keepPreviousData
     })
+
+    const debouncedSeachUpdate = useMemo(() => {
+        return debounce((value: string) => {
+            setQueryParams((prev) => ({ ...prev, searchTerm: value, currentPage: 1 }))
+        }, 500)
+    }, [])
+
+    const onFilterChange = (changedFields: FieldData[]) => {
+        const changedFilterFields = changedFields.map((item) => ({ [item.name[0]]: item.value })).reduce((acc, item) => ({ ...acc, ...item }), {})
+        if (changedFilterFields.searchTerm) {
+            debouncedSeachUpdate(changedFilterFields.searchTerm)
+        }
+        else {
+            setQueryParams((prev) => ({ ...prev, ...changedFilterFields, currentPage: 1 }))
+        }
+    }
     return (
         <>
             <Space className="w-[100%]" direction="vertical" size="large" >
@@ -76,38 +92,24 @@ const Products = () => {
                     ]} />
 
                 </Flex>
-                <Form form={filterForm}>
+                <Form form={filterForm} onFieldsChange={onFilterChange}>
                     <ProductFilter>
                         <Button icon={<PlusOutlined />} type="primary" onClick={() => { }}>Add Product</Button>
                     </ProductFilter>
                 </Form>
                 <Table
-                    columns={[
-                        ...columns,
-                        {
-                            title: 'Actions',
-                            render: (_text: string, record: Product) => {
-                                return (
-                                    <Space>
-                                        <Button type="link" onClick={() => {
-
-                                        }}>
-                                            Edit
-                                        </Button>
-                                        <Button type="link" onClick={() => {
-
-                                        }}>Delete</Button>
-                                    </Space>
-                                )
-                            }
-                        }
-                    ]}
+                    columns={columns}
                     dataSource={products?.data.products}
                     rowKey={'id'}
                     pagination={{
                         total: products?.data.meta.pagination.totalProducts,
                         current: queryParams.currentPage,
                         pageSize: queryParams.perPage,
+                        onChange: (page) => {
+                            setQueryParams((prev) => {
+                                return { ...prev, currentPage: page }
+                            })
+                        },
                         showTotal: (total: number, range: number[]) => { return `Showing ${range[0]}-${range[1]} of ${total} items` }
                     }}
                 />
