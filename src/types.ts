@@ -44,3 +44,26 @@ export type Category = {
   _id: string;
   name: string;
 };
+
+export type Product = {
+  _id: string;
+  name: string;
+  description: string;
+  category: Category;
+  isPublished: boolean;
+  createdAt: string;
+  image: string;
+};
+
+export type ResponseMeta = {
+  pagination: {
+    totalProducts: number;
+    totalPages: number;
+    currentPage: number;
+  };
+};
+
+export type GetProductResponse = {
+  products: Product[];
+  meta: ResponseMeta;
+};

@@ -20,7 +20,6 @@ const ProductFilter = ({ children }: ProductFilterProps) => {
             return getCategories()
         },
     })
-    console.log(categories)
     return (
         <>
             <Card className="my-4">

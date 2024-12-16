@@ -36,6 +36,11 @@ export const deleteUser = (id: string) => {
   return api.delete(`${AUTH_SERVICE}/users/${id}`);
 };
 
+//
 export const getCategories = () => {
   return api.get(`${CATALOG_SERVICE}/categories`);
+};
+
+export const getProducts = (queryParams: string) => {
+  return api.get(`${CATALOG_SERVICE}/products?${queryParams}`);
 };
